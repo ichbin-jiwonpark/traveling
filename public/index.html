@@ -219,7 +219,9 @@ function toast(msg) {
 }
 
 /* ---------- server: everyone with the invite key reads and writes ---------- */
-const KEY = new URLSearchParams(location.search).get("k") || store.get("tripKey") || "";
+// The invite key comes from the link (/<key>, or the older ?k=<key>), then from this browser
+const pathKey = decodeURIComponent(location.pathname.slice(1).split("/")[0] || "");
+const KEY = pathKey || new URLSearchParams(location.search).get("k") || store.get("tripKey") || "";
 if (KEY) store.set("tripKey", KEY);
 const ME = store.get("clientId") || uid();
 store.set("clientId", ME);
@@ -316,7 +318,7 @@ async function deleteTalk(id) {
 }
 const who = (name, id) => id === ME ? "나" : name || "친구";
 const stamp = ms => { const d = new Date(ms); return `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}` };
-function inviteLink() { return `${location.origin}/?k=${encodeURIComponent(KEY)}` }
+function inviteLink() { return `${location.origin}/${encodeURIComponent(KEY)}` }
 function copyInvite() {
   const link = inviteLink();
   const fallback = () => openSheet(`<h2>친구 초대 링크</h2>
@@ -338,7 +340,7 @@ function render() {
 }
 const welcome = (title, text, extra = "") => `<div class="welcome"><h1>${title}</h1><p>${text}</p>${extra}</div>`;
 function view() {
-  if (S.status === "nokey") return welcome("초대 링크로 들어와 주세요", "이 페이지는 친구가 보내 준 초대 링크(주소 끝에 ?k=… 가 붙은 링크)로 열어야 해요.");
+  if (S.status === "nokey") return welcome("초대 링크로 들어와 주세요", "이 페이지는 친구가 보내 준 초대 링크(주소 끝에 비밀 키가 붙은 링크)로 열어야 해요.");
   if (S.status === "badkey") return welcome("초대 링크가 맞지 않아요", "링크가 잘렸거나 바뀌었을 수 있어요. 링크를 보낸 친구에게 다시 받아 주세요.");
   if (S.status === "loading") return `<p class="notice">일정을 불러오는 중이에요.</p>`;
   if (S.status === "error") return welcome("일정을 불러오지 못했어요", esc(S.error || "잠시 뒤 새로고침해 주세요."));

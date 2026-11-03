@@ -19,14 +19,17 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if self.path.startswith("/api"):
-            index.handler._run(self)
-        else:
-            super().do_GET()
+            return index.handler._run(self)
+        # same as the rewrite in vercel.json: /<invite key> serves the page
+        first = self.path.split("?")[0].strip("/")
+        if first and "/" not in first and "." not in first:
+            self.path = "/index.html"
+        super().do_GET()
 
     do_PUT = do_POST = do_PATCH = do_DELETE = index.handler._run
 
 
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 3000
-    print(f"http://localhost:{port}/?k={os.environ['ACCESS_KEY']}")
+    print(f"http://localhost:{port}/{os.environ['ACCESS_KEY']}")
     ThreadingHTTPServer(("", port), Handler).serve_forever()
