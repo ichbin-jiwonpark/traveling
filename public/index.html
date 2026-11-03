@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>마드리드 여행</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Mono:wght@500&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: a royal-blue sky. The hero pairs big white type with a 3D globe (pins on Madrid and Berlin,
+   a dashed route, a plane overhead); below, white clay day cards side by side, rides as pale-blue tiles. */
+:root {
+  --bg: #cfe4ff; --sky-top: #4a86ea; --sky-bottom: #eef5ff; --hero-top: #1d5fd8; --hero-mid: #3f86ef; --hero-bottom: #9cc8ff;
+  --hero-ink: #ffffff; --hero-glass: rgb(255 255 255 / .2);
+  --card: #ffffff; --card-edge: #cddcf3; --ink: #13294b; --muted: #5a6f8f; --line: #e2ebf7;
+  --accent: #2f6fe8; --accent-2: #5d9bff; --accent-edge: #1d4fb5; --accent-ink: #1f58cc; --accent-soft: #e8f1ff;
+  --on-accent: #ffffff; --pin: #ffc23d; --pin-edge: #d99a14; --on-pin: #3a2600;
+  --cloud: #ffffff; --shadow: rgb(30 70 140 / .25); --glass: rgb(255 255 255 / .7); --danger: #c0392b;
+  --display: "Jua", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b1830; --sky-top: #0a1630; --sky-bottom: #15284a; --hero-top: #0f2f6e; --hero-mid: #1d4fa8; --hero-bottom: #3c6fc4;
+  --hero-ink: #ffffff; --hero-glass: rgb(255 255 255 / .14);
+  --card: #152a4a; --card-edge: #0a1832; --ink: #e8f0fc; --muted: #9fb3d1; --line: #23395e;
+  --accent: #3f7ff0; --accent-2: #6d9fff; --accent-edge: #1f4790; --accent-ink: #8db6ff; --accent-soft: #1b3360;
+  --on-accent: #ffffff; --pin: #ffc23d; --pin-edge: #c48a10; --on-pin: #3a2600;
+  --cloud: #2c4670; --shadow: rgb(0 0 0 / .45); --glass: rgb(255 255 255 / .12); --danger: #ff8b7e; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b1830; --sky-top: #0a1630; --sky-bottom: #15284a; --hero-top: #0f2f6e; --hero-mid: #1d4fa8; --hero-bottom: #3c6fc4;
+  --hero-ink: #ffffff; --hero-glass: rgb(255 255 255 / .14);
+  --card: #152a4a; --card-edge: #0a1832; --ink: #e8f0fc; --muted: #9fb3d1; --line: #23395e;
+  --accent: #3f7ff0; --accent-2: #6d9fff; --accent-edge: #1f4790; --accent-ink: #8db6ff; --accent-soft: #1b3360;
+  --on-accent: #ffffff; --pin: #ffc23d; --pin-edge: #c48a10; --on-pin: #3a2600;
+  --cloud: #2c4670; --shadow: rgb(0 0 0 / .45); --glass: rgb(255 255 255 / .12); --danger: #ff8b7e; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg) linear-gradient(180deg, var(--sky-top), var(--sky-bottom) 70%) fixed; color: var(--ink); font: 400 15px/1.6 var(--body); word-break: keep-all; overflow-wrap: anywhere; min-height: 100vh }
+#app { max-width: 1080px; margin: 0 auto; padding-block: 20px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 20px }
+button, select, input, textarea { font: inherit; color: inherit }
+button { cursor: pointer; background: none; border: 0; padding: 0 }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+a { color: inherit }
+img { max-width: 100% }
+
+/* chunky, pressable controls */
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.bar select { flex: 1 1 180px; min-width: 0 }
+select, input, textarea { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 9px 12px; width: 100% }
+.btn { background: var(--card); border-radius: 14px; padding: 9px 16px; font-weight: 700; white-space: nowrap; box-shadow: 0 4px 0 var(--card-edge), 0 8px 18px -10px var(--shadow); transition: transform .08s, box-shadow .08s }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--card-edge) }
+.btn.primary { background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: var(--on-accent); box-shadow: 0 4px 0 var(--accent-edge), 0 10px 20px -10px var(--accent-edge) }
+.btn.primary:active { box-shadow: 0 1px 0 var(--accent-edge) }
+.btn.danger { color: var(--danger) }
+.link { color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 2px }
+.link:hover { color: var(--ink) }
+
+/* hero */
+.hero { position: relative; overflow: hidden; border-radius: 32px; padding: 30px 30px 26px 34px; background: linear-gradient(135deg, var(--hero-top), var(--hero-mid) 55%, var(--hero-bottom)); color: var(--hero-ink); box-shadow: inset 0 2px 0 rgb(255 255 255 / .3), 0 6px 0 var(--card-edge), 0 24px 40px -22px var(--shadow); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); align-items: center; gap: 12px; isolation: isolate }
+.hero::before { content: ""; position: absolute; z-index: -1; width: 520px; height: 520px; right: -90px; top: 50%; transform: translateY(-50%); border-radius: 50%; background: radial-gradient(circle, rgb(255 255 255 / .22) 0 52%, rgb(255 255 255 / .1) 52% 70%, transparent 70%) }
+.hero-text { display: flex; flex-direction: column; gap: 12px; min-width: 0 }
+.hero-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .04em; background: var(--hero-glass); padding: 4px 12px; border-radius: 999px }
+.dday { font: 400 22px/1 var(--display); color: var(--on-pin); background: var(--pin); padding: 8px 14px; border-radius: 14px; box-shadow: 0 4px 0 var(--pin-edge) }
+.hero h1 { font: 400 clamp(46px, 9vw, 76px)/1 var(--display); margin: 4px 0 0; text-shadow: 0 4px 0 rgb(0 0 0 / .14); text-wrap: balance }
+.hero p { margin: 0; font-weight: 500; opacity: .92 }
+.steps { list-style: none; margin: 8px 0 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap }
+.steps button { display: flex; align-items: center; gap: 8px; background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 14px 5px 5px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 0 rgb(0 0 0 / .14) }
+.steps button:active { transform: translateY(2px) }
+.steps b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font: 400 15px var(--display); background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: var(--on-accent); box-shadow: inset 0 -3px 0 var(--accent-edge) }
+.steps .is-today b { background: var(--pin); color: var(--on-pin); box-shadow: inset 0 -3px 0 var(--pin-edge) }
+.globe { width: 100%; max-width: 470px; height: auto; justify-self: end; filter: drop-shadow(0 22px 22px rgb(8 30 90 / .35)) }
+.globe .gplane { animation: float 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center }
+.globe .gpin { animation: bob 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom }
+.globe .gpin.p2 { animation-delay: -1.3s }
+@keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+@media (prefers-reduced-motion: reduce) { .globe .gplane, .globe .gpin { animation: none } }
+
+.nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap }
+.tabs { display: flex; gap: 4px; background: var(--card); padding: 5px; border-radius: 999px; box-shadow: 0 4px 0 var(--card-edge) }
+.tabs button { padding: 7px 18px; border-radius: 999px; font: 400 16px var(--display); color: var(--muted) }
+.tabs button[aria-selected="true"] { background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: var(--on-accent); box-shadow: inset 0 -3px 0 var(--accent-edge) }
+.nav > .link { background: var(--card); padding: 7px 14px; border-radius: 999px; text-decoration: none; font-weight: 700; color: var(--ink); box-shadow: 0 3px 0 var(--card-edge) }
+
+/* day cards */
+.days { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start }
+.day { display: flex; flex-direction: column; min-width: 0; background: var(--card); border-radius: 26px; padding: 18px 18px 12px; box-shadow: inset 0 2px 0 rgb(255 255 255 / .5), 0 6px 0 var(--card-edge), 0 20px 34px -22px var(--shadow); scroll-margin-top: 16px }
+.day-head { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 2px dashed var(--line) }
+.badge { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; font: 400 22px var(--display); background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: var(--on-accent); box-shadow: inset 0 -4px 0 var(--accent-edge), 0 6px 12px -6px var(--accent-edge) }
+.day-head h2 { font: 400 20px/1.2 var(--display); margin: 0 }
+.day-head div > span { color: var(--muted); font-size: 13px }
+.day-head .tag { margin-left: auto; color: var(--on-accent); background: var(--accent-2); font-weight: 700; padding: 2px 10px; border-radius: 999px }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 2px; border-bottom: 1px solid var(--line) }
+.row:last-child { border-bottom: 0 }
+.row.ride { background: linear-gradient(180deg, var(--accent-soft), var(--accent-soft)); border-bottom-color: transparent; border-radius: 16px; padding: 10px 12px; margin-block: 6px; box-shadow: inset 0 -3px 0 rgb(0 0 0 / .05) }
+.when { display: flex; align-items: center; gap: 6px; font: 500 13px/1.5 var(--mono); color: var(--accent-ink) }
+.when svg { width: 18px; height: 18px; flex: none }
+.row h3 { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.45 }
+.row-acts { display: flex; gap: 10px; align-items: flex-start }
+.row-acts .link { line-height: 1.8; text-decoration: none }
+.sub { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 12px }
+.sub a { color: var(--accent-ink); text-underline-offset: 2px; font-weight: 500 }
+.memo { font-size: 13px; margin: 1px 0 0; white-space: pre-wrap; color: var(--muted) }
+.photos { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 2px }
+.photos figure { margin: 0; width: 104px }
+.photos img { display: block; width: 104px; height: 78px; object-fit: cover; border-radius: 14px; background: var(--line); box-shadow: 0 4px 0 var(--card-edge), 0 8px 14px -8px var(--shadow) }
+.photos figcaption { font-size: 11px; line-height: 1.35; margin-top: 6px; color: var(--muted) }
+.credits { font-size: 11px; line-height: 1.6; color: var(--ink); opacity: .7; margin: 0 }
+.empty-day { padding: 14px 0; color: var(--muted); font-size: 14px }
+.num { font-variant-numeric: tabular-nums }
+
+/* talk */
+.talk { display: flex; flex-direction: column; gap: 14px; max-width: 720px; width: 100%; background: var(--card); border-radius: 26px; padding: 18px; box-shadow: inset 0 2px 0 rgb(255 255 255 / .5), 0 6px 0 var(--card-edge), 0 20px 34px -22px var(--shadow) }
+.talk-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap }
+.talk-head .notice { margin: 0 }
+.seg { display: flex; background: var(--bg); border-radius: 999px; padding: 3px }
+.seg button { padding: 4px 12px; font-size: 13px; font-weight: 700; color: var(--muted); border-radius: 999px }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 2px 0 var(--card-edge) }
+.msgs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px }
+.msg { display: flex; gap: 8px; align-items: flex-start; max-width: 88% }
+.msg.mine { margin-left: auto; flex-direction: row-reverse }
+.av { flex: none; width: 34px; height: 34px; border-radius: 12px; background: var(--line); display: grid; place-items: center; font: 400 15px var(--display); box-shadow: inset 0 -3px 0 rgb(0 0 0 / .08) }
+.mine .av { background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: var(--on-accent); box-shadow: inset 0 -3px 0 var(--accent-edge) }
+.bubble { background: var(--bg); border-radius: 18px; border-top-left-radius: 6px; padding: 8px 14px 9px; min-width: 0 }
+.mine .bubble { background: var(--accent-soft); border-radius: 18px; border-top-right-radius: 6px }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; font-size: 12px; color: var(--muted) }
+.meta b { color: var(--ink); font-weight: 700 }
+.meta .link { font-size: 12px }
+.text { margin: 2px 0 0; white-space: pre-wrap }
+.todo { display: flex; gap: 8px; align-items: flex-start; margin-top: 2px; cursor: pointer }
+.todo input, .chk input { width: 18px; height: 18px; flex: none; margin: 3px 0 0; accent-color: var(--accent) }
+.todo .text { margin: 0 }
+.todo.done .text { color: var(--muted); text-decoration: line-through }
+.todo-tag { font-size: 11px; font-weight: 700; color: var(--accent-ink) }
+.composer { position: sticky; bottom: 0; background: var(--card); border-top: 2px dashed var(--line); padding-block: 12px calc(4px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px }
+.composer textarea { resize: vertical; min-height: 64px }
+.composer-row { display: flex; justify-content: space-between; align-items: center; gap: 12px }
+.composer-acts { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: flex-end }
+.chk { display: flex; gap: 6px; align-items: flex-start; font-size: 14px; cursor: pointer }
+
+.notice { font-size: 13px; color: var(--muted) }
+.welcome { margin-top: 40px; padding: 32px; background: var(--card); border-radius: 28px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; box-shadow: 0 6px 0 var(--card-edge), 0 20px 34px -22px var(--shadow) }
+.welcome h1 { font: 400 32px/1.2 var(--display); margin: 0 }
+.welcome p { margin: 0; max-width: 34em; color: var(--muted) }
+
+.sheet-wrap { position: fixed; inset: 0; background: rgb(8 30 50 / .45); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); z-index: 20 }
+.sheet { background: var(--card); border-radius: 26px; width: 100%; max-width: 460px; max-height: 100%; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 6px 0 var(--card-edge), 0 30px 50px -20px var(--shadow) }
+.sheet h2 { font: 400 26px var(--display); margin: 0 }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; min-width: 0 }
+.field input, .field select, .field textarea { font-weight: 400; font-size: 15px }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px }
+.sheet-foot { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px }
+.sheet-foot .grow { flex: 1 }
+.err { color: var(--danger); font-size: 13px; margin: 0 }
+#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--card); padding: 10px 16px; border-radius: 14px; font-size: 14px; max-width: calc(100% - 32px); z-index: 30 }
+
+@media (max-width: 640px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 18px 20px 22px; border-radius: 26px }
+  .hero::before { width: 380px; height: 380px; right: 50%; top: 0; transform: translate(50%, -22%) }
+  .globe { order: -1; justify-self: center; max-width: 290px; margin: -6px 0 -10px }
+}
+</style>
+</head>
+<body>
+<div id="app" aria-live="off"></div>
+<div id="sheet-root"></div>
+<div id="toast" role="status" hidden></div>
+<script>
+const CATS = ["이동", "숙소", "식사", "관광", "쇼핑", "기타"];
+const WD = ["일", "월", "화", "수", "목", "금", "토"];
+const $app = document.getElementById("app");
+const $sheet = document.getElementById("sheet-root");
+const S = { trips: [], tripId: null, tab: "plan", edit: false, status: "loading",
+  talk: [], talkReady: false, talkFilter: "all", asTodo: false };
+const pending = {}, inflight = {}, busy = {};
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const store = { get(k) { try { return localStorage.getItem(k) } catch { return null } }, set(k, v) { try { localStorage.setItem(k, v) } catch {} } };
+const pad = n => String(n).padStart(2, "0");
+const toISO = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d) };
+const fmt = s => { const d = parse(s); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WD[d.getDay()]})` };
+const short = s => { const d = parse(s); return `${d.getMonth() + 1}/${d.getDate()} ${WD[d.getDay()]}` };
+const today = () => toISO(new Date());
+const diffDays = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+const money = (n, t) => `${t.currency || ""}${Number(n || 0).toLocaleString("ko-KR")}`;
+const mapUrl = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+const trip = () => S.trips.find(t => t.id === S.tripId) || null;
+const byStart = (a, b) => (a.start || "").localeCompare(b.start || "");
+function insertItem(items, item) {
+  const out = items.slice();
+  const at = item.time ? out.findIndex(i => i.date === item.date && i.time && i.time > item.time) : -1;
+  if (at >= 0) out.splice(at, 0, item); else out.push(item);
+  return out;
+}
+function moveItem(items, id, dir) {
+  const out = items.slice(), from = out.findIndex(i => i.id === id);
+  const same = out.map((x, n) => x.date === out[from].date ? n : -1).filter(n => n >= 0);
+  const to = same[same.indexOf(from) + dir];
+  if (to === undefined) return out;
+  [out[from], out[to]] = [out[to], out[from]];
+  return out;
+}
+function daysOf(t) {
+  const out = new Set();
+  if (t.start && t.end) for (let d = parse(t.start); toISO(d) <= t.end; d.setDate(d.getDate() + 1)) out.add(toISO(d));
+  (t.items || []).forEach(i => i.date && out.add(i.date));
+  return [...out].sort();
+}
+function dayNo(t, date) { return date >= t.start && date <= t.end ? diffDays(t.start, date) + 1 : null }
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 3500);
+}
+
+/* ---------- server: everyone with the invite key reads and writes ---------- */
+const KEY = new URLSearchParams(location.search).get("k") || store.get("tripKey") || "";
+if (KEY) store.set("tripKey", KEY);
+const ME = store.get("clientId") || uid();
+store.set("clientId", ME);
+let NICK = store.get("nick") || "";
+
+async function api(method, params, body) {
+  const res = await fetch("/api?" + new URLSearchParams(params), {
+    method, headers: { "Content-Type": "application/json", "X-Trip-Key": KEY },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(data.error || "요청 실패"), { status: res.status });
+  return data;
+}
+function failed(e) {
+  if (e.status === 401) { S.status = "badkey"; render() }
+  else toast(e.status === 413 ? "내용이 너무 길어요. 조금 줄여서 다시 시도해 주세요." : e.status === 403 || e.status === 404 ? e.message : "저장하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.");
+}
+async function persist(t) {
+  pending[t.id] = t;
+  if (busy[t.id]) return;
+  busy[t.id] = true;
+  while (pending[t.id]) {
+    const body = inflight[t.id] = pending[t.id]; delete pending[t.id];
+    try { await api("PUT", { r: "trip" }, { trip: body }) } catch (e) { failed(e) }
+  }
+  delete inflight[t.id];
+  busy[t.id] = false;
+}
+function commit(t) {
+  const i = S.trips.findIndex(x => x.id === t.id);
+  if (i < 0) S.trips.push(t); else S.trips[i] = t;
+  S.trips.sort(byStart);
+  persist(t); render();
+}
+function removeTrip(id) {
+  S.trips = S.trips.filter(t => t.id !== id);
+  api("DELETE", { r: "trip", id }).catch(failed);
+  if (S.tripId === id) { S.tripId = null; pickTrip(); resetTalk() }
+  render();
+}
+function pickTrip() {
+  if (trip()) return;
+  const saved = store.get("trip"), d = today();
+  const t = S.trips.find(x => x.id === saved) || S.trips.find(x => x.end >= d) || S.trips[S.trips.length - 1];
+  S.tripId = t ? t.id : null;
+}
+let lastTrips = "", lastTalk = "";
+async function loadTrips() {
+  try {
+    const { trips } = await api("GET", { r: "trips" });
+    const sig = JSON.stringify(trips), first = S.status !== "ready";
+    S.trips = trips.map(t => pending[t.id] || inflight[t.id] || t).sort(byStart);
+    S.status = "ready"; pickTrip();
+    if (first || sig !== lastTrips) { lastTrips = sig; render() }
+    if (first) loadTalk();
+  } catch (e) {
+    if (e.status === 401) S.status = "badkey";
+    else if (S.status === "ready") return;
+    else { S.status = "error"; S.error = e.message }
+    render();
+  }
+}
+
+/* ---------- talk ---------- */
+function resetTalk() { S.talk = []; S.talkReady = false; lastTalk = ""; loadTalk() }
+async function loadTalk() {
+  const id = S.tripId;
+  if (!id) return;
+  try {
+    const { msgs } = await api("GET", { r: "talk", trip: id });
+    if (id !== S.tripId) return;
+    const sig = JSON.stringify(msgs);
+    if (sig !== lastTalk || !S.talkReady) { lastTalk = sig; S.talk = msgs; S.talkReady = true; render() }
+  } catch (e) { if (e.status === 401) failed(e) }
+}
+async function postTalk(text, todo) {
+  S.talk.push({ id: "tmp-" + uid(), text, todo, done: false, author: NICK, authorId: ME, at: Date.now() });
+  render();
+  try { await api("POST", { r: "talk", trip: S.tripId }, { text, todo, author: NICK, authorId: ME }) } catch (e) { failed(e) }
+  loadTalk();
+}
+async function setDone(id, done) {
+  S.talk = S.talk.map(m => m.id === id ? { ...m, done, doneBy: NICK, doneById: ME } : m);
+  render();
+  try { await api("PATCH", { r: "talk", trip: S.tripId }, { id, done, doneBy: NICK, doneById: ME }) } catch (e) { failed(e) }
+  loadTalk();
+}
+async function deleteTalk(id) {
+  S.talk = S.talk.filter(m => m.id !== id);
+  render();
+  try { await api("DELETE", { r: "talk", trip: S.tripId, id, by: ME }) } catch (e) { failed(e) }
+  loadTalk();
+}
+const who = (name, id) => id === ME ? "나" : name || "친구";
+const stamp = ms => { const d = new Date(ms); return `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}` };
+function inviteLink() { return `${location.origin}/?k=${encodeURIComponent(KEY)}` }
+function copyInvite() {
+  const link = inviteLink();
+  const fallback = () => openSheet(`<h2>친구 초대 링크</h2>
+    <p class="notice" style="margin:0">아래 링크를 길게 눌러 복사한 뒤 친구에게 보내 주세요.</p>
+    <input id="invite-link" readonly value="${esc(link)}">
+    <div class="sheet-foot"><span class="grow"></span><button type="button" class="btn primary" data-act="close">닫기</button></div>`, "#invite-link");
+  try {
+    navigator.clipboard.writeText(link).then(() => toast("초대 링크를 복사했어요. 친구에게 보내 주세요."), fallback);
+  } catch { fallback() }
+}
+
+/* ---------- views ---------- */
+function render() {
+  const draft = document.getElementById("talk-new");
+  const keep = draft ? { v: draft.value, f: document.activeElement === draft, s: draft.selectionStart } : null;
+  $app.innerHTML = view();
+  const again = document.getElementById("talk-new");
+  if (again && keep) { again.value = keep.v; if (keep.f) { again.focus(); again.setSelectionRange(keep.s, keep.s) } }
+}
+const welcome = (title, text, extra = "") => `<div class="welcome"><h1>${title}</h1><p>${text}</p>${extra}</div>`;
+function view() {
+  if (S.status === "nokey") return welcome("초대 링크로 들어와 주세요", "이 페이지는 친구가 보내 준 초대 링크(주소 끝에 ?k=… 가 붙은 링크)로 열어야 해요.");
+  if (S.status === "badkey") return welcome("초대 링크가 맞지 않아요", "링크가 잘렸거나 바뀌었을 수 있어요. 링크를 보낸 친구에게 다시 받아 주세요.");
+  if (S.status === "loading") return `<p class="notice">일정을 불러오는 중이에요.</p>`;
+  if (S.status === "error") return welcome("일정을 불러오지 못했어요", esc(S.error || "잠시 뒤 새로고침해 주세요."));
+  const t = trip();
+  if (!t) return welcome("첫 여행을 등록해 보세요", "여행지와 날짜를 넣으면 날짜별 일정표와 친구와 함께 쓰는 여행 전 Talk가 만들어져요.", `<button class="btn primary" data-act="new-trip">새 여행 만들기</button>`);
+  const showBar = S.trips.length > 1 || S.edit;
+  return `
+  ${showBar ? `<div class="bar">
+    <select id="trip-select" aria-label="여행 선택">${S.trips.map(x => `<option value="${esc(x.id)}" ${x.id === t.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>
+    ${S.edit ? `<button class="btn" data-act="edit-trip">여행 수정</button><button class="btn" data-act="new-trip">새 여행</button>` : ""}
+  </div>` : ""}
+  ${header(t)}
+  <div class="nav">
+    <div class="tabs" role="tablist">
+      ${[["plan", "일정"], ["talk", "여행 전 Talk"]].map(([k, l]) => `<button role="tab" aria-selected="${S.tab === k}" data-act="tab" data-v="${k}">${l}</button>`).join("")}
+    </div>
+    ${S.tab === "plan" ? `<button class="link" data-act="toggle-edit">${S.edit ? "편집 끝내기" : "편집"}</button>` : `<button class="link" data-act="invite">친구 초대 링크 복사</button>`}
+  </div>
+  ${S.tab === "talk" ? talkTab() : planTab(t)}`;
+}
+const PIN = (x, y, label, cls) => `<g transform="translate(${x} ${y})"><g class="gpin ${cls}">
+    <path d="M0 0 C-4 -6 -11 -12 -11 -20 A11 11 0 1 1 11 -20 C11 -12 4 -6 0 0 Z" fill="url(#g-pin)" stroke="#d99a14" stroke-width="1.5"/>
+    <circle cy="-20" r="4.5" fill="#fff"/>
+    <rect x="${-label.length * 7 - 8}" y="-56" width="${label.length * 14 + 16}" height="24" rx="12" fill="#fff"/>
+    <text y="-39" text-anchor="middle" font-size="13" font-weight="700" fill="#13294b" font-family="Noto Sans KR, sans-serif">${label}</text>
+  </g></g>`;
+const GLOBE = `<svg class="globe" viewBox="0 0 400 380" aria-hidden="true">
+  <defs>
+    <radialGradient id="g-sea" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="#9ad6ff"/><stop offset=".45" stop-color="#4593f1"/><stop offset=".85" stop-color="#1f5bc4"/><stop offset="1" stop-color="#163f8f"/></radialGradient>
+    <linearGradient id="g-land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9be883"/><stop offset="1" stop-color="#3aa64c"/></linearGradient>
+    <radialGradient id="g-shade" cx=".72" cy=".78" r=".75"><stop offset=".45" stop-color="#0a1e50" stop-opacity="0"/><stop offset="1" stop-color="#0a1e50" stop-opacity=".5"/></radialGradient>
+    <radialGradient id="g-sun" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#fff5b8"/><stop offset="1" stop-color="#ffbe2e"/></radialGradient>
+    <linearGradient id="g-pin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd76a"/><stop offset="1" stop-color="#ffb21f"/></linearGradient>
+    <linearGradient id="g-pl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd9e8"/></linearGradient>
+    <linearGradient id="g-eng" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6aa4ff"/><stop offset="1" stop-color="#1d4fb5"/></linearGradient>
+    <clipPath id="g-clip"><circle cx="200" cy="222" r="122"/></clipPath>
+  </defs>
+  <circle cx="300" cy="118" r="34" fill="url(#g-sun)"/>
+  <g fill="#fff"><circle cx="62" cy="160" r="16"/><circle cx="86" cy="148" r="24"/><circle cx="112" cy="160" r="17"/><rect x="50" y="160" width="76" height="16" rx="8"/></g>
+  <g fill="#fff" opacity=".95"><circle cx="314" cy="196" r="14"/><circle cx="336" cy="186" r="20"/><circle cx="358" cy="198" r="13"/><rect x="302" y="196" width="66" height="14" rx="7"/></g>
+  <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"><path d="M38 96 q7 -7 14 0 q7 -7 14 0"/><path d="M338 66 q6 -6 12 0 q6 -6 12 0"/><path d="M356 256 q5 -5 10 0 q5 -5 10 0"/></g>
+  <ellipse cx="200" cy="362" rx="92" ry="10" fill="#0a1e50" opacity=".22"/>
+  <circle cx="200" cy="222" r="122" fill="url(#g-sea)"/>
+  <g clip-path="url(#g-clip)" fill="url(#g-land)">
+    <path d="M70 168 C88 156 106 168 106 190 C106 214 94 232 92 256 C90 276 80 292 70 282 C60 262 62 206 70 168 Z"/>
+    <path d="M214 130 C220 112 236 102 248 106 C256 114 248 128 238 134 C228 140 218 140 214 130 Z"/>
+    <path d="M166 142 C170 132 182 132 182 144 C182 154 174 158 168 154 C163 150 163 146 166 142 Z"/>
+    <path d="M180 152 C192 138 216 132 240 138 C258 142 264 156 252 164 C240 170 232 180 216 180 C204 180 198 172 188 174 C180 175 172 164 180 152 Z"/>
+    <path d="M154 176 C166 168 186 170 190 182 C192 194 178 200 164 198 C152 196 148 186 154 176 Z"/>
+    <path d="M218 180 C226 182 232 194 230 202 C224 204 220 196 214 186 Z"/>
+    <path d="M160 214 C178 202 216 202 240 212 C260 220 262 240 250 256 C238 272 232 296 216 314 C204 326 194 314 190 296 C186 280 168 272 158 256 C150 240 148 222 160 214 Z"/>
+    <path d="M286 200 C300 196 320 210 318 236 C314 256 300 262 292 250 C284 236 278 208 286 200 Z"/>
+  </g>
+  <circle cx="200" cy="222" r="122" fill="url(#g-shade)"/>
+  <ellipse cx="156" cy="160" rx="52" ry="26" fill="#fff" opacity=".22" transform="rotate(-32 156 160)"/>
+  <g fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="6 6" stroke-linecap="round">
+    <path d="M222 156 Q 206 138 174 180"/>
+    <path d="M172 186 Q 132 232 168 290"/>
+    <path d="M226 160 Q 288 178 276 250"/>
+  </g>
+  ${PIN(172, 184, "마드리드", "p1")}
+  ${PIN(224, 158, "베를린", "p2")}
+  <g transform="translate(200 54) rotate(-18)"><g class="gplane">
+    <path d="M-64 6 L-8 -8 L8 -8 L64 6 L64 15 L8 7 L-8 7 L-64 15 Z" fill="url(#g-pl)"/>
+    <path d="M-24 44 L-5 35 L5 35 L24 44 L24 51 L-24 51 Z" fill="url(#g-pl)"/>
+    <rect x="-9" y="-48" width="18" height="100" rx="9" fill="url(#g-pl)"/>
+    <ellipse cy="-37" rx="5" ry="6.5" fill="#24406e"/>
+    <rect x="-40" y="-2" width="11" height="19" rx="5.5" fill="url(#g-eng)"/>
+    <rect x="29" y="-2" width="11" height="19" rx="5.5" fill="url(#g-eng)"/>
+  </g></g>
+</svg>`;
+const RIDE_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 15.5v-2l-8-5V3.6a1.5 1.5 0 0 0-3 0V8.5l-8 5v2l8-2.5V18l-2.2 1.6V21L12 19.9 16.2 21v-1.4L14 18v-5z"/></svg>`;
+function header(t) {
+  const d = today(), nights = diffDays(t.start, t.end);
+  const big = d < t.start ? `D-${diffDays(d, t.start)}` : d <= t.end ? `${diffDays(t.start, d) + 1}일차` : "완료";
+  return `<header class="hero">
+    <div class="hero-text">
+      <div class="hero-row"><span class="eyebrow">${nights}박 ${nights + 1}일 여행</span><span class="dday">${big}</span></div>
+      <h1>${esc(t.dest || t.name)}</h1>
+      <p>${fmt(t.start)} – ${fmt(t.end)}</p>
+      <ol class="steps">${daysOf(t).map(x => { const no = dayNo(t, x); return `<li><button class="${x === d ? "is-today" : ""}" data-act="jump" data-v="${x}"><b>${no || "·"}</b>${short(x)}</button></li>` }).join("")}</ol>
+    </div>
+    ${GLOBE}
+  </header>`;
+}
+function planTab(t) {
+  const photos = (t.items || []).flatMap(i => i.photos || []);
+  return `
+  ${S.edit ? `<div class="bar"><button class="btn primary" data-act="new-item">일정 추가</button></div>` : ""}
+  <div class="days">${daysOf(t).map(x => dayBlock(t, x)).join("")}</div>
+  ${photos.length ? `<p class="credits">음식 사진은 메뉴 참고용이며 해당 식당의 사진이 아닐 수 있어요. 출처 Wikimedia Commons: ${photos.map(p => `<a href="${esc(p.source)}" target="_blank" rel="noopener">${esc(p.name)}</a> (${esc(p.credit)})`).join(", ")}</p>` : ""}`;
+}
+function dayBlock(t, date) {
+  const items = (t.items || []).filter(i => i.date === date), no = dayNo(t, date);
+  return `<section class="day" id="day-${date}">
+    <div class="day-head"><span class="badge">${no || "·"}</span><div><h2>${fmt(date)}</h2><span>${no ? "Day " + no : "기간 밖"}</span></div>${date === today() ? `<span class="tag">오늘</span>` : ""}</div>
+    ${items.length ? items.map(i => row(t, i)).join("") : `<div class="empty-day">아직 일정이 없어요.</div>`}
+  </section>`;
+}
+function placeLinks(place) {
+  return String(place || "").split(";").map(s => s.trim()).filter(Boolean)
+    .map(q => `<a href="${esc(mapUrl(q))}" target="_blank" rel="noopener">${esc(q.split(",")[0])} ↗</a>`).join("");
+}
+function row(t, i) {
+  const when = i.time ? (i.end ? `${i.time}–${i.end}` : i.time) : "";
+  const links = placeLinks(i.place);
+  return `<article class="row ${when ? "ride" : ""}">
+    <div style="min-width:0">
+      ${when ? `<div class="when">${RIDE_ICON}${esc(when)}</div>` : ""}
+      <h3>${esc(i.title)}</h3>
+      ${i.memo ? `<p class="memo">${esc(i.memo)}</p>` : ""}
+      ${links || i.cost ? `<div class="sub">${links}${i.cost ? `<span class="num">${esc(money(i.cost, t))}</span>` : ""}</div>` : ""}
+      ${(i.photos || []).length ? `<div class="photos">${i.photos.map(p => `<figure><img src="${esc(p.url)}" alt="${esc(p.name)}" loading="lazy"><figcaption>${esc(p.name)}</figcaption></figure>`).join("")}</div>` : ""}
+    </div>
+    ${!S.edit ? "" : `<div class="row-acts"><button class="link" data-act="move-up" data-v="${esc(i.id)}" aria-label="${esc(i.title)} 위로">↑</button><button class="link" data-act="move-down" data-v="${esc(i.id)}" aria-label="${esc(i.title)} 아래로">↓</button><button class="link" data-act="edit-item" data-v="${esc(i.id)}">수정</button></div>`}
+  </article>`;
+}
+function talkTab() {
+  if (!S.talkReady) return `<p class="notice">대화를 불러오는 중이에요.</p>`;
+  const todos = S.talk.filter(m => m.todo), open = todos.filter(m => !m.done).length;
+  const list = S.talkFilter === "todo" ? todos : S.talk;
+  return `<section class="talk">
+    <div class="talk-head">
+      <p class="notice">${todos.length ? `준비할 일 ${todos.length}개 중 ${open}개 남았어요.` : "친구와 준비할 일이나 메모를 남겨 보세요."}</p>
+      <div class="seg">
+        <button data-act="talk-filter" data-v="all" aria-pressed="${S.talkFilter === "all"}">전체</button>
+        <button data-act="talk-filter" data-v="todo" aria-pressed="${S.talkFilter === "todo"}">할 일만</button>
+      </div>
+    </div>
+    ${list.length ? `<ul class="msgs">${list.map(msgItem).join("")}</ul>`
+      : `<p class="notice" style="margin:0">${S.talkFilter === "todo" ? "아직 할 일이 없어요. 아래에서 \"할 일로 남기기\"를 체크하고 보내 보세요." : "첫 메시지를 남겨 보세요. 예: 톨레도 기차표는 누가 예매할까?"}</p>`}
+    ${NICK ? `<form class="composer" data-form="talk">
+      <textarea id="talk-new" rows="2" placeholder="메모나 준비할 일을 적어 주세요" aria-label="메시지"></textarea>
+      <div class="composer-row">
+        <label class="chk"><input type="checkbox" id="talk-todo" ${S.asTodo ? "checked" : ""}>할 일로 남기기</label>
+        <span class="composer-acts"><button type="button" class="link" data-act="change-nick">${esc(NICK)}(으)로 쓰는 중</button><button class="btn primary">보내기</button></span>
+      </div>
+    </form>` : `<form class="composer" data-form="nick">
+      <label class="field" for="nick-input">Talk에서 쓸 이름<input id="nick-input" maxlength="20" required placeholder="예: 지원" autocomplete="nickname"></label>
+      <div class="composer-row"><span class="notice">친구에게 이 이름으로 보여요.</span><button class="btn primary">시작하기</button></div>
+    </form>`}
+  </section>`;
+}
+function msgItem(m) {
+  const mine = m.authorId === ME, name = who(m.author, m.authorId);
+  const body = m.todo
+    ? `<label class="todo ${m.done ? "done" : ""}"><input type="checkbox" data-todo="${esc(m.id)}" ${m.done ? "checked" : ""} ${NICK ? "" : "disabled"}><span class="text">${esc(m.text)}</span></label>`
+    : `<p class="text">${esc(m.text)}</p>`;
+  return `<li class="msg ${mine ? "mine" : ""}">
+    <span class="av" aria-hidden="true">${esc([...name][0] || "?")}</span>
+    <div class="bubble">
+      <div class="meta"><b>${esc(name)}</b><span>${stamp(m.at)}</span>${m.todo ? `<span class="todo-tag">할 일</span>` : ""}${mine && !String(m.id).startsWith("tmp-") ? `<button class="link" data-act="del-msg" data-v="${esc(m.id)}">삭제</button>` : ""}</div>
+      ${body}
+      ${m.todo && m.done && (m.doneBy || m.doneById) ? `<div class="meta">${esc(who(m.doneBy, m.doneById))} 완료</div>` : ""}
+    </div>
+  </li>`;
+}
+
+/* ---------- sheets ---------- */
+function openSheet(html, focus = "input,select") {
+  $sheet.innerHTML = `<div class="sheet-wrap" data-act="close-bg"><form class="sheet" role="dialog" aria-modal="true">${html}</form></div>`;
+  const el = $sheet.querySelector(focus);
+  el?.focus(); if (el?.select && el.readOnly) el.select();
+}
+function closeSheet() { $sheet.innerHTML = "" }
+const f = (id, label, inner) => `<label class="field" for="${id}">${label}${inner}</label>`;
+function deleteBtn(act, v) { return `<button type="button" class="btn danger" data-act="arm-del" data-del="${act}" data-v="${esc(v)}">삭제</button>` }
+function tripSheet(t) {
+  openSheet(`<h2>${t ? "여행 수정" : "새 여행"}</h2>
+    ${f("t-name", "여행 이름", `<input id="t-name" required value="${esc(t?.name)}" placeholder="예: 가족 제주 여행">`)}
+    ${f("t-dest", "여행지", `<input id="t-dest" required value="${esc(t?.dest)}" placeholder="예: 제주">`)}
+    <div class="two">
+      ${f("t-start", "출발일", `<input id="t-start" type="date" required value="${esc(t?.start)}">`)}
+      ${f("t-end", "도착일", `<input id="t-end" type="date" required value="${esc(t?.end)}">`)}
+    </div>
+    <p class="err" id="sheet-err" hidden></p>
+    <div class="sheet-foot">${t ? deleteBtn("trip", t.id) : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">취소</button><button class="btn primary">저장</button></div>`);
+  $sheet.querySelector("form").dataset.form = "trip";
+  $sheet.querySelector("form").dataset.id = t?.id || "";
+}
+function itemSheet(t, it) {
+  const days = daysOf(t);
+  const date = it?.date || (days.includes(today()) ? today() : days[0]);
+  openSheet(`<h2>${it ? "일정 수정" : "일정 추가"}</h2>
+    ${f("i-title", "무엇을 하나요", `<input id="i-title" required value="${esc(it?.title)}" placeholder="예: 성산일출봉 오르기">`)}
+    <div class="two">
+      ${f("i-date", "날짜", `<select id="i-date">${days.map(d => `<option value="${d}" ${d === date ? "selected" : ""}>${short(d)}</option>`).join("")}</select>`)}
+      ${f("i-cat", "분류", `<select id="i-cat">${CATS.map(c => `<option ${c === (it?.cat || "관광") ? "selected" : ""}>${c}</option>`).join("")}</select>`)}
+    </div>
+    <div class="two">
+      ${f("i-time", "출발 시간 (이동만)", `<input id="i-time" type="time" value="${esc(it?.time)}">`)}
+      ${f("i-end", "도착 시간 (이동만)", `<input id="i-end" type="time" value="${esc(it?.end)}">`)}
+    </div>
+    ${f("i-place", "장소 (구글 지도로 연결돼요. 여러 곳은 ; 로 구분)", `<input id="i-place" value="${esc(it?.place)}">`)}
+    ${f("i-memo", "메모 (선택)", `<textarea id="i-memo" rows="2">${esc(it?.memo)}</textarea>`)}
+    <div class="sheet-foot">${it ? deleteBtn("item", it.id) : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">취소</button><button class="btn primary">저장</button></div>`);
+  $sheet.querySelector("form").dataset.form = "item";
+  $sheet.querySelector("form").dataset.id = it?.id || "";
+}
+const val = id => document.getElementById(id).value.trim();
+
+/* ---------- events ---------- */
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const a = el.dataset.act, v = el.dataset.v, t = trip();
+  if (a === "close-bg") { if (e.target === el) closeSheet(); return }
+  if (a === "tab") { S.tab = v; render(); if (v === "talk") loadTalk() }
+  else if (a === "toggle-edit") { S.edit = !S.edit; render() }
+  else if (a === "invite") copyInvite()
+  else if (a === "jump") {
+    if (S.tab !== "plan") { S.tab = "plan"; render() }
+    const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("day-" + v)?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+  }
+  else if (a === "new-trip") tripSheet(null)
+  else if (a === "edit-trip") tripSheet(t)
+  else if (a === "new-item") itemSheet(t, null)
+  else if (a === "edit-item") itemSheet(t, t.items.find(i => i.id === v))
+  else if (a === "close") closeSheet()
+  else if (a === "move-up" || a === "move-down") commit({ ...t, items: moveItem(t.items, v, a === "move-up" ? -1 : 1) })
+  else if (a === "talk-filter") { S.talkFilter = v; render() }
+  else if (a === "change-nick") { NICK = ""; store.set("nick", ""); render(); document.getElementById("nick-input")?.focus() }
+  else if (a === "del-msg") {
+    if (el.dataset.armed) deleteTalk(v);
+    else { el.dataset.armed = "1"; el.textContent = "한 번 더 누르면 삭제" }
+  }
+  else if (a === "arm-del") {
+    if (el.dataset.armed) {
+      if (el.dataset.del === "trip") removeTrip(v);
+      else commit({ ...t, items: t.items.filter(i => i.id !== v) });
+      closeSheet();
+    } else { el.dataset.armed = "1"; el.textContent = el.dataset.del === "trip" ? "한 번 더 누르면 여행 전체 삭제" : "한 번 더 누르면 삭제" }
+  }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "trip-select") { S.tripId = e.target.value; store.set("trip", S.tripId); resetTalk(); render() }
+  if (e.target.id === "talk-todo") S.asTodo = e.target.checked;
+  if (e.target.dataset.todo) setDone(e.target.dataset.todo, e.target.checked);
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeSheet();
+  // Enter sends, Shift+Enter adds a line; skip while a Korean IME is still composing
+  if (e.target.id === "talk-new" && e.key === "Enter" && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
+    e.preventDefault(); e.target.form.requestSubmit();
+  }
+});
+document.addEventListener("submit", e => {
+  e.preventDefault();
+  const kind = e.target.dataset.form, id = e.target.dataset.id;
+  if (kind === "nick") {
+    NICK = val("nick-input").slice(0, 20);
+    if (!NICK) return;
+    store.set("nick", NICK); render(); document.getElementById("talk-new")?.focus();
+  }
+  if (kind === "talk") {
+    const input = document.getElementById("talk-new"), text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    postTalk(text, S.asTodo);
+    requestAnimationFrame(() => document.querySelector(".composer")?.scrollIntoView({ block: "end" }));
+  }
+  if (kind === "trip") {
+    const start = val("t-start"), end = val("t-end");
+    if (end < start) { const err = document.getElementById("sheet-err"); err.textContent = "도착일은 출발일과 같거나 그 뒤여야 해요."; err.hidden = false; return }
+    const old = S.trips.find(t => t.id === id);
+    const t = { ...(old || { id: uid(), items: [], currency: "₩" }), name: val("t-name"), dest: val("t-dest"), start, end };
+    closeSheet(); commit(t);
+    if (!old) { S.tripId = t.id; S.tab = "plan"; store.set("trip", t.id); resetTalk(); render() }
+  }
+  if (kind === "item") {
+    const t = trip();
+    const old = (t.items || []).find(i => i.id === id);
+    const item = { ...old, id: id || uid(), title: val("i-title"), date: val("i-date"), time: val("i-time"), end: val("i-end"), cat: val("i-cat"), place: val("i-place"), memo: val("i-memo") };
+    const items = old && old.date === item.date && old.time === item.time
+      ? t.items.map(i => i.id === id ? item : i)
+      : insertItem((t.items || []).filter(i => i.id !== id), item);
+    closeSheet(); commit({ ...t, items });
+  }
+});
+
+/* ---------- start: talk refreshes every 4 s, the itinerary every 30 s ---------- */
+if (!KEY) { S.status = "nokey"; render() }
+else {
+  render(); loadTrips();
+  setInterval(() => { if (!document.hidden && S.status === "ready") loadTalk() }, 4000);
+  setInterval(() => { if (!document.hidden && S.status === "ready") loadTrips() }, 30000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && S.status === "ready") { loadTrips(); loadTalk() } });
+}
+</script>
+</body>
+</html>
